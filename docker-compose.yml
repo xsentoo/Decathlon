@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  # ==========================================
+  # 1. LA BASE DE DONNÉES (MySQL)
+  # ==========================================
+  mysqldb:
+    image: mysql:8.0
+    container_name: decathlon-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root  # Mot de passe (le même que dans Spring Boot)
+      MYSQL_DATABASE: decathlon_db # Le nom de la base à créer
+    ports:
+      - "3306:3306" # Port externe : Port interne
+    volumes:
+      # Pour ne pas perdre les données quand tu éteins le PC
+      - db_data:/var/lib/mysql
+      # Pour lancer ton script init.sql automatiquement au démarrage !
+      - ./db_init:/docker-entrypoint-initdb.d
+
+  # ==========================================
+  # 2. L'INTERFACE GRAPHIQUE (PhpMyAdmin)
+  # ==========================================
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: decathlon-pma
+    links:
+      - mysqldb
+    environment:
+      PMA_HOST: mysqldb
+      PMA_PORT: 3306
+    ports:
+      - "8081:80" # Tu y accèderas via http://localhost:8081
+
+# Volume de stockage persistant
+volumes:
+  db_data:
