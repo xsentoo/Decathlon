@@ -1,0 +1,209 @@
+:root {
+  --blue-main: #042365;
+  --blue-light: #0b3b9c;
+  --blue-soft: #1b4fb8;
+  --grey-text: #6b7280;
+  --border-light: #e5e7eb;
+}
+
+/* LAYOUT GLOBAL */
+
+.auth-layout {
+  display: flex;
+  width: 100%;
+  height: 100%;
+}
+
+/* COLONNE GAUCHE : fond blanc */
+
+.auth-left {
+  flex: 1.1;
+  background: #ffffff;
+  color: var(--blue-main);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+}
+
+.auth-left-inner {
+  max-width: 420px;
+}
+
+.auth-logo-img {
+  height: 40px;
+  margin-bottom: 2rem;
+}
+
+.auth-title {
+  font-size: 2.1rem;
+  font-weight: 700;
+  margin-bottom: 0.7rem;
+  color: var(--blue-main);
+}
+
+.auth-subtitle {
+  font-size: 1rem;
+  line-height: 1.5;
+  color: #111827;
+  opacity: 0.9;
+  margin-bottom: 2rem;
+}
+
+.auth-placeholder {
+  padding: 1rem 1.2rem;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #e0e7ff, #bfdbfe);
+  color: #111827;
+  font-size: 0.9rem;
+}
+
+/* COLONNE DROITE : fond bleu */
+
+.auth-right {
+  flex: 1;
+  background: var(--blue-main);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+}
+
+.auth-panel {
+  width: 100%;
+  max-width: 420px;
+}
+
+/* Titre & tabs */
+
+.auth-heading {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 1.2rem;
+  text-align: center;
+}
+
+/* Onglets */
+
+.auth-tabs {
+  display: inline-flex;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  padding: 0.2rem;
+  margin: 0 auto 1.4rem;
+}
+
+.tab {
+  padding: 0.55rem 1.3rem;
+  font-size: 0.9rem;
+  border-radius: 999px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.tab.active {
+  background: #ffffff;
+  color: var(--blue-main);
+}
+
+/* Formulaire */
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+label {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.85);
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+/* Inputs : fond transparent, bottom border seulement, couleurs adaptées au bleu */
+
+input {
+  width: 100%;
+  padding: 0.6rem 0;
+  border: none;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.35);
+  background: transparent;
+  font-size: 1rem;
+  color: #ffffff;
+  outline: none;
+}
+
+input::placeholder {
+  color: rgba(226, 232, 240, 0.8);
+}
+
+input:focus {
+  border-bottom-color: #ffffff;
+}
+
+/* Bouton principal */
+
+.btn-primary {
+  width: 100%;
+  padding: 0.8rem;
+  border-radius: 999px;
+  background: #ffffff;
+  color: var(--blue-main);
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: center;
+  max-width: 200px;
+}
+
+/* Texte en bas */
+
+.small-text {
+  font-size: 0.85rem;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.link-button {
+  background: transparent;
+  color: #bfdbfe;
+  font-size: 0.85rem;
+  text-decoration: underline;
+}
+
+/* Grille 2 colonnes */
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.8rem;
+}
+
+/* Responsive */
+
+@media (max-width: 900px) {
+  .auth-layout {
+    flex-direction: column;
+  }
+
+  .auth-left {
+    padding: 2rem;
+  }
+
+  .auth-right {
+    padding: 2rem 1.5rem;
+  }
+
+  .auth-left-inner {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 520px) {
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
+}
