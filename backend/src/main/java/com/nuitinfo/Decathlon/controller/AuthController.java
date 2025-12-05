@@ -16,7 +16,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "http://localhost:5173")
+
 public class AuthController {
 
     @Autowired private UserRepository userRepository;
@@ -57,6 +57,8 @@ public class AuthController {
             Map<String, Object> response = new HashMap<>();
             response.put("token", token);
             response.put("pseudo", user.getPseudo());
+            response.put("sportFocus", user.getSportFocus());
+            response.put("painArea", user.getPainArea());
             return response;
         } else {
             throw new RuntimeException("Mauvais mot de passe");

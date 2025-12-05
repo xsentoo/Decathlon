@@ -8,6 +8,7 @@ import com.nuitinfo.Decathlon.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal; // Importe Principal pour la sécurité
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,35 +16,31 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/exercises")
-@CrossOrigin(origins = "http://localhost:5173")
+// ❌ Supprimé : @CrossOrigin (Géré globalement par SecurityConfig)
 public class ExerciseController {
 
     @Autowired private ExerciseRepository exerciseRepository;
     @Autowired private UserRepository userRepository;
 
-    // 1. TOUS LES EXERCICES
+    // 1. TOUS LES EXERCICES (Public)
     @GetMapping
     public List<Exercise> getAllExercises() {
         return exerciseRepository.findAll();
     }
 
-    // 2. RECOMMANDATION INTELLIGENTE (Sport + Douleur)
-    // Exemple : /api/exercises/filter?sport=Running&pain=Genoux
+    // 2. RECOMMANDATION INTELLIGENTE (Public)
     @GetMapping("/filter")
     public List<Exercise> getRecommendations(
             @RequestParam String sport,
             @RequestParam(required = false) String pain) {
 
         if (pain == null || pain.isEmpty() || pain.equals("Non, tout va bien")) {
-            // Si pas de douleur, on filtre juste par sport
             return exerciseRepository.findByTargetSport(sport);
         }
-
-        // Sinon, on cherche Sport OU Douleur
         return exerciseRepository.findRecommendations(sport, pain);
     }
 
-    // 3. CLASSEMENT
+    // 3. CLASSEMENT (Public)
     @GetMapping("/leaderboard")
     public List<LeaderboardEntry> getLeaderboard() {
         List<User> topUsers = userRepository.findTop10ByOrderByPointDesc();
@@ -52,13 +49,16 @@ public class ExerciseController {
                 .collect(Collectors.toList());
     }
 
-    // 4. VALIDATION ET POINTS
+    // 4. VALIDATION ET POINTS (PRIVÉ : Nécessite un Token JWT)
     @PostMapping("/{id}/complete")
-    public Map<String, Object> completeExercise(@PathVariable Long id, @RequestBody Map<String, String> payload) {
-        String email = payload.get("email");
+    public Map<String, Object> completeExercise(@PathVariable Long id, Principal principal) {
+        // NOTE: On utilise Principal pour récupérer l'email du token JWT
+        String email = principal.getName();
+
         User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
         Exercise exo = exerciseRepository.findById(id).orElseThrow(() -> new RuntimeException("Exo not found"));
 
+        // Anti-Triche et Logique de Score
         if (user.getCompletedExercises().contains(exo)) {
             Map<String, Object> r = new HashMap<>();
             r.put("message", "Déjà fait !");
