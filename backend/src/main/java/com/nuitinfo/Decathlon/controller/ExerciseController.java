@@ -6,6 +6,7 @@ import com.nuitinfo.Decathlon.model.User;
 import com.nuitinfo.Decathlon.repository.ExerciseRepository;
 import com.nuitinfo.Decathlon.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal; // Importe Principal pour la sécurité
@@ -26,6 +27,12 @@ public class ExerciseController {
     @GetMapping
     public List<Exercise> getAllExercises() {
         return exerciseRepository.findAll();
+    }
+    @GetMapping("/{id}")
+    public ResponseEntity<Exercise> getExerciseById(@PathVariable Long id) {
+        return exerciseRepository.findById(id)
+                .map(ResponseEntity::ok) // Si trouvé, renvoie 200 OK
+                .orElse(ResponseEntity.notFound().build()); // Si non trouvé, renvoie 404
     }
 
     // 2. RECOMMANDATION INTELLIGENTE (Public)

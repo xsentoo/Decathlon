@@ -11,10 +11,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-// 👇 IMPORTS POUR LA CONFIGURATION CORS GLOBALE
+
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -32,18 +33,24 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+
         http
                 .csrf(csrf -> csrf.disable())
-                // 👇 INTÉGRATION DE LA CONFIGURATION CORS GLOBALE
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
                 .authorizeHttpRequests(auth -> auth
-                        // Routes ouvertes (Auth, Exercices publics, Admin stats)
+                        // --- ROUTES PUBLIQUES ---
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/exercises/**").permitAll()
-                        .requestMatchers("/api/admin/stats").permitAll() // La page de stats est publique pour la démo
+                        .requestMatchers("/api/admin/stats").permitAll()
                         .requestMatchers("/test").permitAll()
-                        .requestMatchers("/api/users/pr      ofile-update").authenticated() // Cette route EST PROTÉGÉE
+
+                        // --- ROUTES PROTÉGÉES ---
+                        .requestMatchers("/api/users/profile-update").authenticated()
+
+                        // Tout le reste nécessite une Authentification
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
@@ -51,24 +58,30 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // --- BEAN QUI AUTORISE LE FRONTEND 5173 POUR TOUTES LES MÉTHODES ---
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // Autorise le port 5173 (Ton Frontend)
-        configuration.setAllowedOrigins(List.of("http://localhost:5173"));
+        // --- ORIGINE PERMISE : TON FRONTEND ---
+        configuration.setAllowedOrigins(List.of("http://localhost:5174"));
 
-        // Autorise les méthodes GET, POST, PUT, DELETE, OPTIONS
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        // --- MÉTHODES AUTORISÉES ---
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 
-        // Headers requis pour envoyer le Token JWT
-        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+        // --- HEADERS AUTORISÉS ---
+        configuration.setAllowedHeaders(List.of(
+                "Authorization",
+                "Content-Type",
+                "Accept",
+                "Origin",
+                "X-Requested-With"
+        ));
+
         configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        // Applique cette configuration à TOUTES les routes de l'API (/**)
         source.registerCorsConfiguration("/**", configuration);
+
         return source;
     }
 }
