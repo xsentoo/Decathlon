@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import "./Auth.css";
 import decathlonLogo from "../assets/decathlon-logo.svg";
+import { Typewriter } from "react-simple-typewriter";
+
 
 
 function Auth() {
@@ -38,24 +40,39 @@ function Auth() {
   return (
     <div className="auth-layout">
       {/* COLONNE GAUCHE */}
-      <div className="auth-left">
-  <div className="auth-left-inner">
-    <img
-      src={decathlonLogo}
-      alt="Decathlon"
-      className="auth-logo-img"
+       <div className="auth-left">
+            <div className="auth-left-inner">
+  <img
+    src={decathlonLogo}
+    alt="Decathlon"
+    className="auth-logo-img"
+  />
+
+  <h1 className="auth-title">Coach Postural</h1>
+
+  <p className="auth-subtitle">
+    Prépare ton corps avant l'effort, améliore ta posture et évite les
+    blessures grâce à un diagnostic simple et guidé.
+  </p>
+
+  <div className="auth-badge">
+    <Typewriter
+      words={[
+        "Analyse posturale intelligente…",
+        "Conseils posturaux en temps réel…",
+        "Routine adaptée à ton niveau…",
+      ]}
+      loop={true}
+      cursor
+      cursorStyle="|"
+      typeSpeed={60}
+      deleteSpeed={40}
+      delaySpeed={1800}
     />
-
-    <h2 className="auth-title">Coach Postural</h2>
-    <p className="auth-subtitle">
-      Prépare ton corps avant l'effort, améliore ta posture et évite les blessures.
-    </p>
-
-    <div className="auth-placeholder">
-      Future zone pour l'animation 
-    </div>
   </div>
 </div>
+
+            </div>
 
 
       {/* COLONNE DROITE */}
