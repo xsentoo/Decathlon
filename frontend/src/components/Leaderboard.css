@@ -1,0 +1,79 @@
+.leaderboard-wrapper {
+  width: 100%;
+}
+
+/* Tableau pro, bordures horizontales seulement */
+.leaderboard-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  table-layout: fixed;
+  font-family: inherit; /* utilise la police globale de ta page */
+}
+
+.leaderboard-table thead tr {
+  border-bottom: 1px solid rgba(148, 163, 184, 0.6);
+}
+
+.leaderboard-table th,
+.leaderboard-table td {
+  padding: 0.55rem 0.4rem;
+  text-align: left;
+}
+
+/* En-têtes */
+.leaderboard-table thead th {
+  font-weight: 600;
+  color: #4b5563;
+}
+
+/* Lignes : bordure fine seulement entre les lignes */
+.leaderboard-table tbody tr + tr {
+  border-top: 1px solid rgba(209, 213, 219, 0.9);
+}
+
+/* pas de bordures verticales */
+.leaderboard-table th:first-child,
+.leaderboard-table td:first-child {
+  padding-left: 0;
+}
+.leaderboard-table th:last-child,
+.leaderboard-table td:last-child {
+  padding-right: 0;
+}
+
+/* Colonne # */
+.leaderboard-table td:nth-child(1) {
+  width: 14%;
+  color: #6b7280;
+  font-weight: 600;
+}
+
+/* Pseudo */
+.leaderboard-table td:nth-child(2) {
+  width: 38%;
+  font-weight: 500;
+  color: #111827;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Points */
+.leaderboard-table td:nth-child(3) {
+  width: 20%;
+  color: #0f766e;
+  font-weight: 600;
+}
+
+/* Badge */
+.leaderboard-table td:nth-child(4) {
+  width: 28%;
+  color: #4b5563;
+  font-size: 0.86rem;
+}
+
+/* Hover léger sur la ligne */
+.leaderboard-table tbody tr:hover {
+  background-color: rgba(243, 244, 246, 0.9);
+}

@@ -1,124 +1,187 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import './Auth.css';
-import '../App.css';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import "./Auth.css";
+import "../App.css";
+import "./ProfilingPage.css";
 
-function ProfilingPage() {
-    const navigate = useNavigate();
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
+const sportOptions = ["Running", "Yoga", "Musculation", "Surf"];
+const painOptions = ["Aucune", "Dos", "Genoux", "Épaules"];
 
-    // URL de l'API de mise à jour sécurisée que nous avons codée
-    const API_URL_UPDATE = "http://localhost:8080/api/users/profile-update";
+// ======= SELECT CUSTOM DÉCATHLON =======
+function DecaSelect({ label, placeholder, options, value, onChange }) {
+  const [open, setOpen] = useState(false);
 
-    const [profileForm, setProfileForm] = useState({
-        sportFocus: '',
-        painArea: '',
-    });
+  const handleSelect = (option) => {
+    onChange(option);
+    setOpen(false);
+  };
 
-    const handleProfileSubmit = async (e) => {
-        e.preventDefault();
-        setError(null);
-        setLoading(true);
+  return (
+    <div className="profil-field">
+      <span className="profil-label">{label}</span>
 
-        // Validation front (on vérifie que l'utilisateur a sélectionné quelque chose)
-        if (!profileForm.sportFocus || !profileForm.painArea) {
-            setError("Veuillez sélectionner votre sport et votre zone de douleur.");
-            setLoading(false);
-            return;
-        }
+      <div
+        className="deca-select"
+        onClick={() => setOpen((prev) => !prev)}
+      >
+        <span className={`deca-select-value ${!value ? "deca-select-placeholder" : ""}`}>
+          {value || placeholder}
+        </span>
+        <span className="deca-select-arrow">▾</span>
+      </div>
 
-        try {
-            // Récupération des infos de connexion
-            const token = localStorage.getItem("authToken");
-
-            if (!token) {
-                setError("Session expirée. Veuillez vous reconnecter.");
-                navigate("/auth");
-                return;
-            }
-
-            const payload = {
-                sportFocus: profileForm.sportFocus,
-                painArea: profileForm.painArea,
-            };
-
-            // 1. Appel sécurisé à l'API (PUT /profile-update)
-            await axios.put(API_URL_UPDATE, payload, {
-                headers: {
-                    // Envoi du Token JWT dans le Header Authorization
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                }
-            });
-
-            // 2. Succès : Redirection vers le Tableau de Bord (Home)
-            navigate("/home");
-
-        } catch (err) {
-            console.error("Erreur de mise à jour du profil:", err.response ? err.response.data : err.message);
-            setError("Erreur API : Impossible de mettre à jour le profil.");
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    return (
-        <div className="auth-layout" style={{background: '#042365'}}>
-            <div className="auth-right">
-                <div className="auth-panel" style={{background: '#1b4fb8', padding: '30px', borderRadius: '15px'}}>
-                    <h1 style={{color: 'white', textAlign: 'center'}}>Étape 1 : Finalisation du Profil</h1>
-                    <p style={{color: 'white', opacity: 0.8, textAlign: 'center', marginBottom: '1.5rem'}}>
-                        Pour vous fournir les meilleurs conseils de prévention, répondez à ces questions.
-                    </p>
-
-                    {error && <p style={{ color: 'yellow', textAlign: 'center' }}>{error}</p>}
-
-                    <form className="auth-form" onSubmit={handleProfileSubmit}>
-
-                        {/* CHAMP 1 : SPORT */}
-                        <label style={{color: 'white'}}>Sport principal :
-                            <select
-                                name="sportFocus"
-                                value={profileForm.sportFocus}
-                                onChange={(e) => setProfileForm({...profileForm, sportFocus: e.target.value})}
-                                required
-                                style={{padding: '0.6rem 0.2rem', background: 'transparent', border: 'none', borderBottom: '2px solid rgba(255, 255, 255, 0.35)', color: 'white', fontSize: '1rem'}}
-                            >
-                                <option value="" disabled hidden style={{backgroundColor: '#042365'}}>-- Choisir un sport --</option>
-                                <option value="Running" style={{backgroundColor: '#042365'}}>Running</option>
-                                <option value="Yoga" style={{backgroundColor: '#042365'}}>Yoga</option>
-                                <option value="Musculation" style={{backgroundColor: '#042365'}}>Musculation</option>
-                                <option value="Surf" style={{backgroundColor: '#042365'}}>Surf</option>
-                            </select>
-                        </label>
-
-                        {/* CHAMP 2 : DOULEUR */}
-                        <label style={{color: 'white'}}>Zone de douleur actuelle :
-                            <select
-                                name="painArea"
-                                value={profileForm.painArea}
-                                onChange={(e) => setProfileForm({...profileForm, painArea: e.target.value})}
-                                required
-                                style={{padding: '0.6rem 0.2rem', background: 'transparent', border: 'none', borderBottom: '2px solid rgba(255, 255, 255, 0.35)', color: 'white', fontSize: '1rem'}}
-                            >
-                                <option value="" disabled hidden style={{backgroundColor: '#042365'}}>-- Choisir la zone --</option>
-                                <option value="Aucune" style={{backgroundColor: '#042365'}}>Aucune</option>
-                                <option value="Dos" style={{backgroundColor: '#042365'}}>Dos</option>
-                                <option value="Genoux" style={{backgroundColor: '#042365'}}>Genoux</option>
-                                <option value="Epaules" style={{backgroundColor: '#042365'}}>Épaules</option>
-                            </select>
-                        </label>
-
-                        <button type="submit" className="btn-primary" disabled={loading} style={{marginTop: '20px', marginLeft: 'auto', marginRight: 'auto'}}>
-                            {loading ? "Mise à jour..." : "Valider et Accéder au Coach"}
-                        </button>
-                    </form>
-                </div>
-            </div>
+      {open && (
+        <div className="deca-options">
+          {options.map((opt) => (
+            <button
+              type="button"
+              key={opt}
+              className={`deca-option ${
+                opt === value ? "deca-option--active" : ""
+              }`}
+              onClick={() => handleSelect(opt)}
+            >
+              {opt}
+            </button>
+          ))}
         </div>
-    );
+      )}
+    </div>
+  );
+}
+
+// ======= PAGE PRINCIPALE =======
+function ProfilingPage() {
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const API_URL_UPDATE = "http://localhost:8080/api/users/profile-update";
+
+  const [profileForm, setProfileForm] = useState({
+    sportFocus: "",
+    painArea: "",
+  });
+
+  const handleProfileSubmit = async (e) => {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+
+    if (!profileForm.sportFocus || !profileForm.painArea) {
+      setError("Veuillez sélectionner votre sport et votre zone de douleur.");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("authToken");
+
+      if (!token) {
+        setError("Session expirée. Veuillez vous reconnecter.");
+        navigate("/auth");
+        return;
+      }
+
+      const payload = {
+        sportFocus: profileForm.sportFocus,
+        painArea: profileForm.painArea,
+      };
+
+      await axios.put(API_URL_UPDATE, payload, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      navigate("/home");
+    } catch (err) {
+      console.error(
+        "Erreur de mise à jour du profil:",
+        err.response ? err.response.data : err.message
+      );
+      setError("Erreur API : Impossible de mettre à jour le profil.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="profiling-page">
+      <div className="profil-card">
+        {/* Étapes */}
+        <div className="profil-steps">
+          <div className="profil-step profil-step--active">
+            <span className="profil-step-dot" />
+            <span>Étape 1 · Profil</span>
+          </div>
+          <div className="profil-step-divider" />
+          <div className="profil-step">
+            <span className="profil-step-dot" />
+            <span>Étape 2 · Coach</span>
+          </div>
+          <div className="profil-step">
+            <span className="profil-step-dot" />
+            <span>Étape 3 · Prévention</span>
+          </div>
+        </div>
+
+        {/* Header */}
+        <div className="profil-header">
+          <h1 className="profil-title">
+            Finalisation <span>du Profil</span>
+          </h1>
+          <p className="profil-subtitle">
+            Quelques questions pour adapter les conseils de prévention à ton
+            sport et à ta zone de fragilité. 100% dans l’esprit Décathlon.
+          </p>
+        </div>
+
+        {error && <p className="profil-error">{error}</p>}
+
+        <form className="profil-form" onSubmit={handleProfileSubmit}>
+          {/* SPORT */}
+          <DecaSelect
+            label="Sport principal"
+            placeholder="-- Choisir un sport --"
+            options={sportOptions}
+            value={profileForm.sportFocus}
+            onChange={(val) =>
+              setProfileForm((prev) => ({ ...prev, sportFocus: val }))
+            }
+          />
+
+          {/* DOULEUR */}
+          <DecaSelect
+            label="Zone de douleur actuelle"
+            placeholder="-- Choisir la zone --"
+            options={painOptions}
+            value={profileForm.painArea}
+            onChange={(val) =>
+              setProfileForm((prev) => ({ ...prev, painArea: val }))
+            }
+          />
+
+          <div className="profil-actions">
+            <button
+              type="submit"
+              className="profil-btn-primary"
+              disabled={loading}
+            >
+              {loading ? "Mise à jour..." : "Valider et Accéder au Coach"}
+            </button>
+          </div>
+
+          <p className="profil-footnote">
+            Ces informations nous aident à personnaliser tes exercices pour
+            limiter les risques de blessure. Elles restent confidentielles.
+          </p>
+        </form>
+      </div>
+    </div>
+  );
 }
 
 export default ProfilingPage;

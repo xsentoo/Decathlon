@@ -1,0 +1,307 @@
+:root {
+  --dec-blue: #0082c3;
+  --dec-blue-dark: #002c6a;
+  --dec-blue-deep: #001638;
+  --dec-accent: #00d1ff;
+  --dec-accent-soft: #7fe6ff;
+  --text-main: #f9fafb;
+  --text-muted: #cbd5f5;
+  --card-bg: rgba(3, 22, 67, 0.9);
+  --danger: #ff6475;
+  --radius-xl: 32px;
+  --shadow-xl: 0 28px 80px rgba(0, 0, 0, 0.55);
+  --transition-fast: 180ms ease-out;
+}
+
+/* Fond global */
+.profiling-page {
+  min-height: 100vh;
+  padding: 32px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(circle at 0% 0%, #0046a5 0, transparent 55%),
+    radial-gradient(circle at 100% 0%, #00a5ff 0, transparent 55%),
+    linear-gradient(135deg, #00132c, #000814 70%, #001b3d);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+    "Segoe UI", sans-serif;
+  color: var(--text-main);
+}
+
+/* Carte centrale */
+.profil-card {
+  width: min(960px, 100%);
+  background: var(--card-bg);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-xl);
+  padding: 40px 40px 32px;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(148, 187, 233, 0.2);
+  backdrop-filter: blur(18px);
+}
+
+.profil-card::before {
+  content: "";
+  position: absolute;
+  inset: -40%;
+  background:
+    radial-gradient(circle at 0 0, rgba(0, 209, 255, 0.18), transparent 55%),
+    radial-gradient(circle at 100% 0, rgba(0, 130, 195, 0.22), transparent 55%);
+  opacity: 0.9;
+  z-index: -1;
+}
+
+/* Étapes */
+.profil-steps {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 24px;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+.profil-step {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.profil-step-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  border: 2px solid var(--dec-accent-soft);
+  background: transparent;
+}
+
+.profil-step--active .profil-step-dot {
+  background: var(--dec-accent);
+  box-shadow: 0 0 0 4px rgba(0, 209, 255, 0.25);
+}
+
+.profil-step--active {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.profil-step-divider {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    rgba(148, 187, 233, 0.25),
+    rgba(148, 187, 233, 0)
+  );
+}
+
+/* Titre */
+.profil-header {
+  margin-bottom: 28px;
+}
+
+.profil-title {
+  font-size: clamp(2.1rem, 3vw, 2.6rem);
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.profil-title span {
+  color: var(--dec-accent);
+}
+
+.profil-subtitle {
+  margin-top: 8px;
+  font-size: 0.98rem;
+  color: var(--text-muted);
+  max-width: 520px;
+}
+
+/* Form */
+.profil-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px 32px;
+  margin-bottom: 10px;
+}
+
+.profil-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.profil-label {
+  font-size: 0.92rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+/* Erreur */
+.profil-error {
+  margin-bottom: 18px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: rgba(255, 100, 117, 0.1);
+  border: 1px solid rgba(255, 100, 117, 0.5);
+  color: #ffe2e6;
+  font-size: 0.9rem;
+}
+
+/* Bouton */
+.profil-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: center;
+  margin-top: 4px;
+}
+
+.profil-btn-primary {
+  border: none;
+  border-radius: 999px;
+  padding: 14px 40px;
+  font-size: 1.02rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #ffffff, #f5f5f5);
+  color: var(--dec-blue-dark);
+  cursor: pointer;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  transition:
+    transform var(--transition-fast),
+    box-shadow var(--transition-fast),
+    background 160ms ease-out,
+    opacity 120ms ease-out;
+}
+
+.profil-btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 24px 52px rgba(0, 0, 0, 0.6);
+  background: linear-gradient(135deg, #ffffff, #e8f3ff);
+}
+
+.profil-btn-primary:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.5);
+}
+
+.profil-btn-primary:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+/* Footnote */
+.profil-footnote {
+  grid-column: 1 / -1;
+  margin-top: 6px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .profil-card {
+    padding: 28px 20px 24px;
+    border-radius: 24px;
+  }
+
+  .profil-form {
+    grid-template-columns: 1fr;
+  }
+
+  .profil-subtitle {
+    max-width: 100%;
+  }
+}
+
+/* ===== SELECT CUSTOM DÉCATHLON ===== */
+
+.deca-select {
+  position: relative;
+  border-radius: 999px;
+  background: rgba(6, 26, 82, 0.9);
+  border: 1px solid rgba(148, 187, 233, 0.35);
+  padding: 11px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  transition:
+    border-color 0.18s ease-out,
+    box-shadow 0.18s ease-out,
+    background 0.18s ease-out;
+}
+
+.deca-select:hover {
+  border-color: var(--dec-accent);
+  box-shadow: 0 0 0 1px rgba(0, 209, 255, 0.35);
+}
+
+.deca-select-value {
+  font-size: 0.98rem;
+  color: #ffffff;
+  font-weight: 500;
+}
+
+.deca-select-placeholder {
+  color: #9ca9e5;
+  font-weight: 400;
+}
+
+.deca-select-arrow {
+  font-size: 0.7rem;
+  color: #9ca9e5;
+}
+
+/* Liste des options */
+.deca-options {
+  margin-top: 8px;
+  background: #041a45;
+  border-radius: 18px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.6);
+  padding: 6px 0;
+  overflow: hidden;
+  animation: deca-select-open 0.18s ease-out;
+  z-index: 20;
+}
+
+.deca-option {
+  width: 100%;
+  text-align: left;
+  padding: 10px 20px;
+  border: none;
+  background: transparent;
+  color: #ffffff;
+  cursor: pointer;
+  font-size: 0.96rem;
+  transition: background 0.15s ease-out, padding-left 0.15s ease-out;
+}
+
+.deca-option:hover {
+  background: #005fbb;
+  padding-left: 24px;
+}
+
+.deca-option--active {
+  background: #0082c3;
+  font-weight: 600;
+}
+
+/* Anim */
+@keyframes deca-select-open {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}

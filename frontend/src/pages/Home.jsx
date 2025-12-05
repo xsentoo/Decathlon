@@ -1,174 +1,261 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './Home.css';
 import decathlonLogo from '../assets/decathlon-logo.svg';
-import Leaderboard from '../components/Leaderboard.jsx'; // 👈 On garde l'import externe
+import Leaderboard from '../components/Leaderboard.jsx';
 
-// --- Composant pour la Barre de Progression ---
+// === Barre de progression ===
 const ProgressBar = ({ points, level }) => {
-    // Définition des objectifs de niveau (doit correspondre à la logique Java)
-    const TARGET_SCORES = {
-        'Novice': 500,
-        'Debutant': 500,
-        'Intermediaire': 1500,
-        'Expert': 2000,
-    };
+  const TARGET_SCORES = {
+    Novice: 500,
+    Debutant: 500,
+    Intermediaire: 1500,
+    Expert: 2000,
+  };
 
-    const currentLevelTarget = TARGET_SCORES[level] || 500;
-    const percent = level === 'Expert' ? 100 : Math.min(100, (points / currentLevelTarget) * 100);
+  const target = TARGET_SCORES[level] || 500;
+  const percent = level === 'Expert'
+    ? 100
+    : Math.min(100, (points / target) * 100);
 
-    return (
-        <div className="progress-bar-container">
-            <div className="progress-bar" style={{ width: `${percent}%` }}></div>
-        </div>
-    );
+  return (
+    <div className="progress-bar-container">
+      <div className="progress-bar" style={{ width: `${percent}%` }} />
+    </div>
+  );
 };
 
-/* ATTENTION : LE COMPOSANT LEADERBOARD EST SUPPRIMÉ ICI
-POUR UTILISER L'IMPORTATION EXTERNE (import Leaderboard from '../components/Leaderboard.jsx';)
-*/
+// === En-tête de section réutilisable ===
+const SectionHeader = ({ title, subtitle, right }) => (
+  <div className="section-header">
+    <div>
+      <h2 className="section-title">{title}</h2>
+      {subtitle && <p className="section-subtitle">{subtitle}</p>}
+    </div>
+    {right && <div className="section-right">{right}</div>}
+  </div>
+);
+
+// === Carte exercice réutilisable ===
+const ExerciseCard = ({ exercise, onClick }) => (
+  <article className="exercise-card" onClick={onClick}>
+    <header className="exercise-card-header">
+      <h3>{exercise.title}</h3>
+      <span
+        className={`badge-difficulty badge-${String(exercise.difficulty)
+          .toLowerCase()
+          .trim()}`}
+      >
+        {exercise.difficulty}
+      </span>
+    </header>
+
+    <p className="exercise-description">
+      {exercise.instructions
+        ? `${exercise.instructions.substring(0, 110)}...`
+        : 'Instructions à venir.'}
+    </p>
+
+    <footer className="exercise-meta">
+      <span className="exercise-reward">+ {exercise.pointsReward} pts</span>
+      <span className="exercise-cta">Voir l’exercice →</span>
+    </footer>
+  </article>
+);
 
 function Home() {
-    const navigate = useNavigate();
-    const [user, setUser] = useState(null);
-    const [exercises, setExercises] = useState([]);
-    const [leaderboard, setLeaderboard] = useState([]);
-    const [error, setError] = useState(null);
-    const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+  const [exercises, setExercises] = useState([]);
+  const [leaderboard, setLeaderboard] = useState([]);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-    const API_URL_USER_PROFILE = "http://localhost:8080/api/users/profile";
-    const API_URL_EXERCISES = "http://localhost:8080/api/exercises";
-    const API_URL_LEADERBOARD = "http://localhost:8080/api/exercises/leaderboard";
+  const API_URL_USER_PROFILE = 'http://localhost:8080/api/users/profile';
+  const API_URL_EXERCISES = 'http://localhost:8080/api/exercises';
+  const API_URL_LEADERBOARD =
+    'http://localhost:8080/api/exercises/leaderboard';
 
-    useEffect(() => {
-        const fetchUserDataAndExercises = async () => {
-            const token = localStorage.getItem('authToken');
-            if (!token) {
-                navigate('/auth');
-                return;
-            }
-
-            const config = { headers: { 'Authorization': `Bearer ${token}` } };
-            setLoading(true);
-
-            try {
-                // 1. Récupérer les données de l'utilisateur et du profil
-                const userResponse = await axios.get(API_URL_USER_PROFILE, config);
-                setUser(userResponse.data);
-                const sportFocus = userResponse.data.sportFocus;
-                const painArea = userResponse.data.painArea;
-
-                // 2. Récupérer les exercices (Moteur intelligent : Sport OU Douleur)
-                const exercisesResponse = await axios.get(`${API_URL_EXERCISES}/filter?sport=${sportFocus}&pain=${painArea}`, config);
-                setExercises(exercisesResponse.data);
-
-                // 3. Récupérer le classement
-                const leaderboardResponse = await axios.get(API_URL_LEADERBOARD, config);
-                setLeaderboard(leaderboardResponse.data);
-
-
-            } catch (err) {
-                console.error("Erreur lors de la récupération des données:", err.response || err);
-                setError("Impossible de charger les données. (Vérifiez votre Token/Session)");
-                if (err.response && (err.response.status === 401 || err.response.status === 403)) {
-                    localStorage.clear();
-                    navigate('/auth');
-                }
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchUserDataAndExercises();
-    }, [navigate]);
-
-    const handleLogout = () => {
-        localStorage.clear();
+  useEffect(() => {
+    const fetchData = async () => {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
         navigate('/auth');
+        return;
+      }
+
+      const config = { headers: { Authorization: `Bearer ${token}` } };
+      setLoading(true);
+
+      try {
+        const userRes = await axios.get(API_URL_USER_PROFILE, config);
+        setUser(userRes.data);
+
+        const { sportFocus, painArea } = userRes.data;
+
+        const exRes = await axios.get(
+          `${API_URL_EXERCISES}/filter?sport=${sportFocus}&pain=${painArea}`,
+          config
+        );
+        setExercises(exRes.data);
+
+        const lbRes = await axios.get(API_URL_LEADERBOARD, config);
+        setLeaderboard(lbRes.data);
+      } catch (err) {
+        console.error('Erreur lors de la récupération des données:', err);
+        setError(
+          'Impossible de charger les données. (Vérifiez votre session ou votre connexion.)'
+        );
+        if (err.response && [401, 403].includes(err.response.status)) {
+          localStorage.clear();
+          navigate('/auth');
+        }
+      } finally {
+        setLoading(false);
+      }
     };
 
-    // --- Extraction des Produits pour la Section Recommandations ---
-    const recommendedProduct = exercises.length > 0 ? exercises[0] : null;
+    fetchData();
+  }, [navigate]);
 
-    if (loading) {
-        return <div className="loading-screen">Chargement du coach...</div>;
-    }
+  const handleLogout = () => {
+    localStorage.clear();
+    navigate('/auth');
+  };
 
-    if (error) {
-        return <div className="error-screen">{error}</div>;
-    }
+  const recommendedProduct = exercises[0] || null;
 
+  if (loading) {
     return (
-        <div className="home-layout">
-            {/* TOP BAR / PROFIL & DÉCONNEXION */}
-            <header className="home-header">
-                <div className="logo-section">
-                    <img src={decathlonLogo} alt="Decathlon Logo" className="header-logo" />
-                    <span className="app-title">Coach Postural</span>
-                </div>
-
-                <div className="user-profile-section">
-                    {user && (
-                        <>
-                            <div className="user-info">
-                                <span className="user-pseudo">Bienvenue, {user.pseudo}</span>
-                                <div className="user-level">Niveau : {user.level}</div>
-                                <ProgressBar points={user.point} level={user.level} />
-                                <span className="user-points">{user.point} points</span>
-                            </div>
-                            <button onClick={handleLogout} className="btn-logout">Déconnexion</button>
-                        </>
-                    )}
-                </div>
-            </header>
-
-            <main className="home-content">
-                {/* SECTION PRINCIPALE : EXERCICES */}
-                <section className="exercises-section">
-                    <h2>Programme Postural ({user.sportFocus} & {user.painArea})</h2>
-                    <div className="exercise-list">
-                        {exercises.length > 0 ? (
-                            exercises.map(exercise => (
-                                // Le clic mène à la page détaillée pour faire l'exercice
-                                <div key={exercise.id} className="exercise-card" onClick={() => navigate(`/exercise/${exercise.id}`)}>
-                                    <h3>{exercise.title}</h3>
-                                    <p>{exercise.instructions.substring(0, 70)}...</p>
-                                    <span className="exercise-difficulty">Difficulté: {exercise.difficulty} | Récompense: {exercise.pointsReward} pts</span>
-                                </div>
-                            ))
-                        ) : (
-                            <p>Aucun exercice trouvé pour votre profil. Veuillez mettre à jour votre profil sportif.</p>
-                        )}
-                    </div>
-                </section>
-
-                {/* SECTION CLASSEMENT & PRODUITS (Colonne latérale) */}
-                <aside className="sidebar-sections">
-                    {/* LEADERBOARD (Niveau 3) */}
-                    <section className="leaderboard-section">
-                        <h2>🏆 Top Athlètes (Classement)</h2>
-                        {/* 👈 Utilisation du composant importé (Leaderboard.jsx) */}
-                        <Leaderboard leaderboardData={leaderboard} />
-                    </section>
-
-                    {/* PRODUITS DECATHLON (Niveau 4) */}
-                    <section className="products-section">
-                        <h2>🛒 Équipement Recommandé</h2>
-                        {recommendedProduct ? (
-                            <div className="product-display">
-                                <img src={recommendedProduct.productImage} alt={recommendedProduct.productName} className="product-img" />
-                                <p className="product-name">{recommendedProduct.productName}</p>
-                                <a href={recommendedProduct.productUrl} target="_blank" rel="noopener noreferrer" className="btn-buy-sidebar">Acheter (Niveau 4)</a>
-                            </div>
-                        ) : (
-                            <p>Ajoutez des exercices pour voir les recommandations produits.</p>
-                        )}
-                    </section>
-                </aside>
-            </main>
-        </div>
+      <div className="loading-screen">
+        <span className="loader-dot" />
+        <span className="loader-dot" />
+        <span className="loader-dot" />
+        <span className="loader-text">Chargement du coach...</span>
+      </div>
     );
+  }
+
+  if (error) return <div className="error-screen">{error}</div>;
+  if (!user) return null;
+
+  return (
+    <div className="home-layout">
+      {/* === HEADER === */}
+      <header className="home-header">
+        <div className="logo-section">
+          <img src={decathlonLogo} alt="Decathlon" className="header-logo" />
+        </div>
+
+        <div className="user-profile-section">
+          <div className="user-info">
+            <span className="user-pseudo">{user.pseudo}</span>
+            <div className="user-level-row">
+              <span className="user-level-badge">Niveau {user.level}</span>
+              <span className="user-points">{user.point} pts</span>
+            </div>
+            <ProgressBar points={user.point} level={user.level} />
+          </div>
+
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="btn-logout"
+          >
+            Déconnexion
+          </button>
+        </div>
+      </header>
+
+      {/* === CONTENU === */}
+      <main className="home-content">
+        {/* Colonne gauche : programme */}
+        <section className="panel exercises-section">
+          <SectionHeader
+            title="Programme postural du jour"
+            subtitle={
+              <>
+                Personnalisé pour <strong>{user.sportFocus}</strong> · Zone
+                sensible : <strong>{user.painArea}</strong>
+              </>
+            }
+            right={
+              <div className="section-tags">
+                <span className="tag-pill">
+                  {user.sportFocus || 'Sport'}
+                </span>
+                <span className="tag-pill tag-pill-soft">
+                  {user.painArea || 'Zone douloureuse'}
+                </span>
+              </div>
+            }
+          />
+
+          <div className="exercise-list">
+            {exercises.length ? (
+              exercises.map((ex) => (
+                <ExerciseCard
+                  key={ex.id}
+                  exercise={ex}
+                  onClick={() => navigate(`/exercise/${ex.id}`)}
+                />
+              ))
+            ) : (
+              <p className="empty-state">
+                Aucun exercice trouvé pour votre profil.
+                <br />
+                <span>
+                  Mettez à jour votre profil sportif pour recevoir un programme
+                  adapté.
+                </span>
+              </p>
+            )}
+          </div>
+        </section>
+
+        {/* Colonne droite : leaderboard + produit */}
+        <aside className="sidebar-sections">
+          <section className="panel leaderboard-section">
+            <SectionHeader title="Top Athlètes" />
+            <Leaderboard leaderboardData={leaderboard} />
+          </section>
+
+          <section className="panel products-section">
+            <SectionHeader title="Équipement recommandé" />
+
+            {recommendedProduct ? (
+              <div className="product-display">
+                {recommendedProduct.productImage && (
+                  <img
+                    src={recommendedProduct.productImage}
+                    alt={recommendedProduct.productName}
+                    className="product-img"
+                  />
+                )}
+                <p className="product-name">
+                  {recommendedProduct.productName}
+                </p>
+                <a
+                  href={recommendedProduct.productUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-buy-sidebar"
+                >
+                  Voir sur Decathlon.fr
+                </a>
+              </div>
+            ) : (
+              <p className="empty-state-products">
+                Ajoutez ou complétez vos exercices pour obtenir une
+                recommandation produit adaptée.
+              </p>
+            )}
+          </section>
+        </aside>
+      </main>
+    </div>
+  );
 }
 
 export default Home;
