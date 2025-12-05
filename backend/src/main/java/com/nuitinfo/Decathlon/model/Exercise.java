@@ -17,10 +17,12 @@ public class Exercise {
     private String instructions;
 
     // --- FILTRES ---
-    private String targetSport;
+    private String targetSport;     // Ex: "Running"
+    private String targetPainArea;  // Ex: "Genoux" (NOUVEAU CHAMP)
+
     private String difficulty;
 
-    // --- GAMIFICATION (C'est celui-là qui manquait !) ---
+    // --- GAMIFICATION ---
     private int pointsReward;
 
     // --- VISUEL (Niveau 3) ---
